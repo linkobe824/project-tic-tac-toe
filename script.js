@@ -5,6 +5,7 @@ const gameBoard = (() => {
     const columns = 3;
     const board = [];
 
+
     //retornar el tablero
     const getBoard = () => board;
 
@@ -16,7 +17,10 @@ const gameBoard = (() => {
     }
     //poner marca en tablero
     const putMark = (row, col, player) => {
-        if (board[row][col] === 0) return
+        if(board[row][col].getVal() !== 0){
+            console.log("not valid");
+            return
+        }
         board[row][col].addMark(player)
     }
     //mostrar tablero
@@ -74,12 +78,79 @@ const gameController = ((playerOneName = "Player One", playerTwoName = "Player T
         console.log(`${getActivePlayer().name}'s turn.`)
     }
 
+    let roundsPlayed = 0
+
+    const winningCondition = (row, col) => {
+        roundsPlayed++
+        const rows = 3;
+        const board = gameBoard.getBoard();
+        const mark =  getActivePlayer().mark;
+        
+        //horizontal 
+        for(let i = 0; i < rows; i++){
+            if(board[row][i].getVal() !== mark){
+                break
+            }
+            if (i === rows-1){
+                return "win";
+            }
+        }
+
+        //vertical
+        for(let i = 0; i < rows; i++){
+            if(board[i][col].getVal() !== mark){
+                break;
+            }
+            if (i === rows-1) {
+                return "win";
+            }
+        }
+
+        //Diagonal situation
+        if(board[1][1].getVal() === mark){
+            //diagonal
+            for(let i = 0; i < rows; i++){
+                if(board[i][i].getVal() !== mark){
+                    break
+                }
+                if(i === rows-1){
+                    return "win";
+                }
+            }
+
+            // anti-diagonal
+            for(let i = 0; i < rows; i++){
+                if(board[i][rows-1-i].getVal() !== mark){
+                    break
+                }
+                if(i === rows-1){
+                    return "win";
+                }
+            }
+        }
+        //if no one won by the last round time 
+        if (roundsPlayed === rows**2){
+            return "draw";
+        }
+    }
+
+
     const playRound = (row, col) => {
         console.log(`${getActivePlayer().name} marking on (${row},${col})...`);
         gameBoard.putMark(row, col, getActivePlayer().mark);
-
-        switchPlayerTurn();
-        printNewRound();
+        if(winningCondition(row, col)){
+            gameBoard.printBoard()
+            const value = winningCondition(row,col)
+            if(value === "win"){
+                console.log(`${getActivePlayer().name} wins!!`)
+            }else{
+                console.log("Draw");
+            }
+            
+        }else{
+            switchPlayerTurn();
+            printNewRound();
+        }
     }
     
     printNewRound()
@@ -89,4 +160,44 @@ const gameController = ((playerOneName = "Player One", playerTwoName = "Player T
         getActivePlayer
     };
 })()
+//diagonal 1
+// gameController.playRound(0,0)
+// gameController.playRound(0,1)
+// gameController.playRound(1,1)
+// gameController.playRound(1,2)
+// gameController.playRound(2,2)
+
+//horizontal 2
+// gameController.playRound(0,0)
+// gameController.playRound(1,0)
+// gameController.playRound(0,1)
+// gameController.playRound(1,1)
+// gameController.playRound(2,0)
+// gameController.playRound(1,2)
+
+//anti diagonal 1
+// gameController.playRound(0,2)
+// gameController.playRound(1,2)
+// gameController.playRound(1,1)
+// gameController.playRound(1,0)
+// gameController.playRound(2,0)
+
+//vertical 2
+// gameController.playRound(0,0)
+// gameController.playRound(1,1)
+// gameController.playRound(1,0)
+// gameController.playRound(2,1)
+// gameController.playRound(0,2)
+// gameController.playRound(0,1)
+
+//draw
+// gameController.playRound(0,0)
+// gameController.playRound(1,1)
+// gameController.playRound(0,2)
+// gameController.playRound(0,1)
+// gameController.playRound(2,1)
+// gameController.playRound(1,0)
+// gameController.playRound(1,2)
+// gameController.playRound(2,2)
+// gameController.playRound(2,0)
 
